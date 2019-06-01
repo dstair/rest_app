@@ -29,10 +29,10 @@ class People(Resource):
     except Exception:
       return "Failed to delete person with ID %s, are you sure this ID exists?" %str(person_id)
 
-  def post(self, person_id):
+  def put(self, person_id):
     #try:
-      new_person_dict = parser.parse_args()
-      return str(new_person_dict)
+      #new_person_dict = parser.parse_args()
+      return request.form['data']
       conn = db_connect.connect()
       #new_person_dict = json.loads(new_person)
       query = conn.execute("INSERT INTO people (id, name, age, locale) \
