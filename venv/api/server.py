@@ -6,10 +6,46 @@
 from flask import Flask, request, json
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
+import os 
 
-db_connect = create_engine('sqlite:///rest_api.db')
-app = Flask(__name__)
+CURRENT_ENV = os.environ.get("FLASK_ENV", default='development')
+
+if CURRENT_ENV == 'development':
+  db_connect = create_engine('sqlite:///rest_api.db')
+
+def create_app(test_config=None):
+    # create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+    )
+
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
+
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    # a simple page that says hello
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
+
+    return app
+
+app = create_app()
 api = Api(app)
+
+
+
 
 def return_person_json(person_id):
   conn = db_connect.connect()
