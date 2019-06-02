@@ -11,25 +11,30 @@ db_connect = create_engine('sqlite:///rest_api.db')
 app = Flask(__name__)
 api = Api(app)
 
+def return_person_json(person_id):
+  conn = db_connect.connect()
+  query = conn.execute("SELECT * FROM people WHERE id = %s" %str(person_id))
+  person_list = query.cursor.fetchall()[0]
+  return json.jsonify(id=person_list[0],
+                      name=person_list[1],
+                      age=person_list[2],
+                      locale=person_list[3])
+
 class People(Resource):
   def get(self, person_id):
     try:
-      conn = db_connect.connect()
-      query = conn.execute("SELECT * FROM people WHERE id = %s" %str(person_id))
-      person_list = query.cursor.fetchall()[0]
-      return json.jsonify(id=person_list[0],
-                          name=person_list[1],
-                          age=person_list[2],
-                          locale=person_list[3])
+      return return_person_json(person_id)
     except Exception:
       return "Encountered an error. Are you sure the person ID you requested exists?"
 
   def delete(self, person_id):
-    try:
+    #try:
+      person_json = return_person_json(person_id)
       conn = db_connect.connect()
       query = conn.execute("DELETE FROM people WHERE id = %s;" %str(person_id))
-    except Exception:
-      return "Failed to delete person with ID %s, are you sure this ID exists?" %str(person_id)
+      return person_json
+    #except Exception:
+    #  return "Failed to delete person with ID %s, are you sure this ID exists?".format(person_id)
 
   # Note: using PUT instead of POST here. This is because each class can only have 1 associated route.
   #  I chose to have all 3 actions (get/delete/put) in 1 class because that is clearer to me.
