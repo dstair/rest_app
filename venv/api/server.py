@@ -7,18 +7,18 @@ from flask import Flask, request, json
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 import os 
+import db
 
 CURRENT_ENV = os.environ.get("FLASK_ENV", default='development')
 
-if CURRENT_ENV == 'development':
-  db_connect = create_engine('sqlite:///rest_api.db')
+db_connect = create_engine('sqlite:///rest_api.db')
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'rest_api.db'),
     )
 
     if test_config is None:
@@ -34,17 +34,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    db.init_app(app)
 
     return app
 
+
 app = create_app()
 api = Api(app)
-
-
 
 
 def return_person_json(person_id):
@@ -56,12 +52,13 @@ def return_person_json(person_id):
                       age=person_list[2],
                       locale=person_list[3])
 
+
 class People(Resource):
   def get(self, person_id):
     try:
       return return_person_json(person_id)
     except Exception:
-      return "Encountered an error. Are you sure the person ID you requested exists?"
+      return "Encountered an error. Are you sure the person ID you requested exists?", 404
 
   def delete(self, person_id):
     try:
@@ -70,7 +67,8 @@ class People(Resource):
       query = conn.execute("DELETE FROM people WHERE id = %s;" %str(person_id))
       return person_json
     except Exception:
-      return "Failed to delete person with ID %s, are you sure this ID exists?".format(person_id)
+      return "Failed to delete person with ID %s, are you sure this ID exists?".format(person_id), 404
+
 
 class NewPeople(Resource):
   def put(self):
@@ -88,11 +86,8 @@ class NewPeople(Resource):
                     age=new_person_dict['age'],
                     locale=new_person_dict['locale'])
     except Exception:
-      return "Failed to create person with Name".format(new_person_dict['name'])
+      return "Failed to create person", 500
+
 
 api.add_resource(People, '/resources/data/<string:person_id>')
 api.add_resource(NewPeople, '/resources/data/')
-
-
-
-
