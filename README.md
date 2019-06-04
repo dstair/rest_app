@@ -17,7 +17,7 @@ This code was tested on a Mac running OSX 10.14.5, using Python 3.7.3. Because w
         pip install -r requirements.txt
         cd api
 
-1. Set up the database (this is not yet automated). From the api/ folder run:
+1. Set up the database (this is not yet automated). Add 1 row so the tests pass. This code should be modified such that test and production databases set up automatically and are completely separate, but is not there yet. From the api/ folder run:
 
         sqlite3 rest_api.db
 
@@ -30,7 +30,17 @@ This code was tested on a Mac running OSX 10.14.5, using Python 3.7.3. Because w
           locale STRING NOT NULL
         );
 
-1. Run the tests - 5 of the 6 tests should pass. From the api/ folder run:
+        INSERT INTO people (
+         name,
+         age,
+         locale)
+        VALUES
+         (
+         'peter',
+         42,
+         'NYC');
+
+1. Run the tests - 4 of the 5 tests should pass; test_delete_person_exists() is not functional unless you pass it a  user ID that exists. From the api/ folder run:
 
         python test_server.py
 

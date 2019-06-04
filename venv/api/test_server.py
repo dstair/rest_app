@@ -23,7 +23,10 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(response, 1792)
 
     def test_get_person_exists(self):
-        response = self.app.get('/resources/data/12382')
+        # add a person so there is a person in the system
+        os.system('curl http://localhost:5000/resources/data/ -d\
+         \'data={ "name": "peter", "locale": "NYC", "age": 42}\' -X PUT -v')
+        response = self.app.get('/resources/data/1')
         self.assertEqual(str(response.json), "{'age': 42, 'id': 1, 'locale': 'NYC', 'name': 'peter'}")
         self.assertEqual(response.status_code, 200)
 
