@@ -1,7 +1,7 @@
 # rest_app
 A basic REST API built using Python and Flask.
 
-### Installation instructions
+### Installation instruction
 
 This code was tested on a Mac running OSX 10.14.5, using Python 3.7.3. Because we are using virtualenv, this setup should be somewhat compatible across platforms.
 
